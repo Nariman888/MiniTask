@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/layout.html}"
+	  xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity-5">
+<div layout:fragment="mainContent">
+	<div class="row my-3">
+		<div class="col-6">
+		<div class="container" >
+			<div class="row">
+				<div class="col-12">
+					<button class="btn btn-success btn-sm" onclick="openAddModal()">ADD COMPANY + </button>
+				</div>
+			</div>
+			<div class="row mt-3">
+				<div class="col-12">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>COMPANY</th>
+								<th width="7%">DETAILS</th>
+								<th width="5%">DELETE</th>
+							</tr>
+						</thead>
+						<tbody id = "companyList"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+<!--		//DELETE COMPANY MODEL-->
+		<div class="modal fade" id="deleteCompanyModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title">Delete Company From List</h5>
+		        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		      </div>
+		      <div class="modal-body">
+		        <div class="row">
+		        	<div class="col-12">
+		        		<input type="hidden" id = "deleteCompanyId">
+		        		<h6 class="text-center">
+		        			Are you sure?!
+		        		</h6>
+		        	</div>
+		        </div>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+		        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="deleteCompany()">Yes!</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+<!--		ADD COMPANY MODAL-->
+		<div class="modal fade" id="addCompanyModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title" >ADD COMPANY</h5>
+		        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		      </div>
+		      <div class="modal-body">
+		        <div class="row">
+		        	<div class="col-12">
+		        		<label>COMPANY NAME : </label>
+		        	</div>
+		        </div>
+		        <div class="row mt-2">
+		        	<div class="col-12">
+		        		<input type="text" class="form-control" id = "addCompanyName" placeholder="COMPANY NAME">
+		        	</div>
+		        </div>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+		        <button type="button" class="btn btn-success" data-bs-dismiss="modal" onclick="addCompany()">Add</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+<!--		EDIT COMPANY MODAL-->
+		<div class="modal fade" id="CompanyDetailsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title">Edit Company</h5>
+		        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		      </div>
+		      <div class="modal-body">
+		      	<input type="hidden" id = "editCompanyId">
+		        <div class="row">
+		        	<div class="col-12">
+		        		<label>COMPANY NAME : </label>
+		        	</div>
+		        </div>
+		        <div class="row mt-2">
+		        	<div class="col-12">
+		        		<input type="text" class="form-control" id = "editCompanyName" placeholder="Name">
+		        	</div>
+		        </div>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+		        <button type="button" class="btn btn-success" data-bs-dismiss="modal" onclick="saveCompany()">Save</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		</div>
+
+<!--		TABLE OF SPECIALTY-->
+		<div class="col-6">
+			<div class="container" >
+				<div class="row">
+					<div class="col-12">
+						<button class="btn btn-success btn-sm" onclick="SopenAddModal()">ADD SPECIALTY + </button>
+					</div>
+				</div>
+				<div class="row mt-3">
+					<div class="col-12">
+						<table class="table table-striped">
+							<thead>
+							<tr>
+								<th>ID</th>
+								<th>SPECIALTY</th>
+								<th width="7%">DETAILS</th>
+								<th width="5%">DELETE</th>
+							</tr>
+							</thead>
+							<tbody id = "specialtyList"></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!--		//DELETE SPECIALTY MODEL-->
+			<div class="modal fade" id="deleteSpecialtyModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title">Delete Specialty From List</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<div class="row">
+								<div class="col-12">
+									<input type="hidden" id = "deleteSpecialtyId">
+									<h6 class="text-center">
+										Are you sure?!
+									</h6>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="deleteSpecialty()">Yes!</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--		ADD SPECIALTY MODAL-->
+			<div class="modal fade" id="addSpecialtyModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" >ADD SPECIALTY</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<div class="row">
+								<div class="col-12">
+									<label>NAME OF SPECIALTY: </label>
+								</div>
+							</div>
+							<div class="row mt-2">
+								<div class="col-12">
+									<input type="text" class="form-control" id = "addSpecialtyName" placeholder="SPECIALTY NAME">
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-success" data-bs-dismiss="modal" onclick="addSpecialty()">Add</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--		EDIT SPECIALTY MODAL-->
+			<div class="modal fade" id="SpecialtyDetailsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title">Edit Company</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<input type="hidden" id = "editSpecialtyId">
+							<div class="row">
+								<div class="col-12">
+									<label>SPECIALTY NAME : </label>
+								</div>
+							</div>
+							<div class="row mt-2">
+								<div class="col-12">
+									<input type="text" class="form-control" id = "editSpecialtyName" placeholder="Name">
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-success" data-bs-dismiss="modal" onclick="saveSpecialty()">Save</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	</div>
+</html>
+
+
+
+
+
+
+
+

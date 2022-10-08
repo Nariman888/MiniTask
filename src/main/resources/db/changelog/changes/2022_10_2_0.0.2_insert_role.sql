@@ -1,0 +1,1 @@
+INSERT INTO roles (role) VALUES ('ROLE_ADMIN'),('ROLE_HR'),('ROLE_CANDIDATE');

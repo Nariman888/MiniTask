@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity-5">
+<head>
+    <meta charset="UTF-8">
+    <title>WorkIn</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+</head>
+<body onload="allFunction()">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+<div class="container">
+    <div class="row">
+    <div class="col-12 py-5">
+        <nav class="navbar navbar-dark bg-dark fixed-top">
+            <div class="container-fluid">
+                <a class="navbar-brand" th:href="@{'/'}" style="font-size:30px;font-family:'Lucida Handwriting'">WorkIn</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
+                    <div class="offcanvas-header">
+                        <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">List of pages</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                    <div class="offcanvas-body">
+                        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3" >
+
+                            <li class="nav-item" sec:authorize="isAnonymous()">
+                                <a class="nav-link" th:href="@{'/signup'}">Sign Up</a>
+                            </li>
+                            <li class="nav-item" sec:authorize="isAnonymous()">
+                                <a class="nav-link" th:href="@{'/login'}">Login</a>
+                            </li>
+                            <li class="nav-item" sec:authorize = "hasAnyRole('ROLE_ADMIN')">
+                                <a class="nav-link" th:href="@{'/adminpage'}">Admin Panel</a>
+                            </li>
+                            <li class="nav-item" sec:authorize = "hasAnyRole('ROLE_ADMIN','ROLE_HR')">
+                                <a class="nav-link" th:href="@{'/hrpage'}">HR Page</a>
+                            </li>
+                            <li class="nav-item" sec:authorize = "hasAnyRole('ROLE_ADMIN','ROLE_CANDIDATE')">
+                                <a class="nav-link" th:href="@{'/candidate'}">Candidate Page</a>
+                            </li>
+                            <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                                <a class="nav-link dropdown-toggle" href="#" role="button"
+                                   data-bs-toggle="dropdown" aria-expanded="false"
+                                   style="color:white; font-weight: 700">
+                                    <span th:text="${#authentication.getPrincipal().fullName}"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li  sec:authorize="isAuthenticated()">
+                                        <a class="dropdown-item" th:href="@{'/'}">Home</a>
+                                    </li>
+                                    <li><a class="dropdown-item" href="JavaScript:void(0)"
+                                           onclick="signOutForm.submit()">Sign out</a></li>
+                                    <li><form th:action="@{'/signout'}" method="post" id="signOutForm"></form></li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <div sec:authorize = "hasAnyRole('ROLE_ADMIN','ROLE_HR')">
+                        <form class="d-flex" role="search">
+                            <input class="form-control me-2" type="search" placeholder="Search"
+                                   aria-label="Search" id="search">
+                            <button class="btn btn-success" type="submit" onclick="loadQuestionnairesBySearch()">Search</button>
+                        </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="container py-3 col-12" style=min-height:700px>
+        <div class="row mt-3">
+            <div class="col-12">
+                <div layout:fragment="mainContent">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+    function allFunction(){
+        companiesSelect();
+        specialtiesSelect();
+        loadSpecialities();
+        loadCompanies();
+        loadQuestionnaires();
+    }
+
+    // COMPANY JS
+    function openAddModal(){
+        const myModal = new bootstrap.Modal('#addCompanyModal', {backdrop: true, focus:false, keyboard: false});
+        myModal.show();
+    }
+
+    function openDeleteModal(companyId){
+        const myModal = new bootstrap.Modal('#deleteCompanyModal', {backdrop: true, focus:false, keyboard: false});
+
+        deleteCompanyId.value = companyId;
+        myModal.show();
+    }
+
+    function openDetailsModal(companyId){
+        const myModal = new bootstrap.Modal('#CompanyDetailsModal', {backdrop: true, focus:false, keyboard: false});
+
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+
+            var company = JSON.parse(this.responseText);
+
+            editCompanyId.value = company.id;
+            editCompanyName.value = company.name;
+
+            myModal.show();
+        }
+        xhttp.open("GET", "http://localhost:8000/admin/company/"+companyId);
+        xhttp.send();
+    }
+
+    function addCompany() {
+
+        var bodyObj = {
+            "name": addCompanyName.value
+        }
+
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            loadCompanies();
+            addCompanyName.value = "";
+        }
+        xhttp.open("POST", "http://localhost:8000/admin/company");
+        xhttp.setRequestHeader("Content-type", "application/json;charset=UTF-8");
+        xhttp.send(JSON.stringify(bodyObj));
+    }
+
+    function saveCompany() {
+        var bodyObj = {
+            "id": editCompanyId.value,
+            "name": editCompanyName.value
+        }
+
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            loadCompanies();
+        }
+        xhttp.open("PUT", "http://localhost:8000/admin/company");
+        xhttp.setRequestHeader("Content-type", "application/json;charset=UTF-8");
+        xhttp.send(JSON.stringify(bodyObj));
+    }
+
+    function loadCompanies() {
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            var companies = JSON.parse(this.responseText);
+            var tableContent = "";
+            for(var i=0;i<companies.length;i++){
+                tableContent+="<tr>";
+                tableContent+="<td>"+companies[i].id+"</td>";
+                tableContent+="<td>"+companies[i].name+"</td>";
+                tableContent+="<td><button class = 'btn btn-dark btn-sm' onclick = 'openDetailsModal("+companies[i].id+")'>DETAILS</button></td>";
+                tableContent+="<td style = 'text-align:center;'><button class = 'btn btn-danger btn-sm' onclick = 'openDeleteModal("+companies[i].id+")'>X</button></td>";
+                tableContent+="</tr>";
+            }
+            document.getElementById("companyList").innerHTML = tableContent;
+        }
+        xhttp.open("GET", "http://localhost:8000/admin/company");
+        xhttp.send();
+    }
+
+
+    function deleteCompany() {
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            loadCompanies();
+        }
+        xhttp.open("DELETE", "http://localhost:8000/admin/company/"+deleteCompanyId.value);
+        xhttp.send();
+    }
+    /////////////
+    // SPECIALTY JS
+    function SopenAddModal(){
+        const myModal = new bootstrap.Modal('#addSpecialtyModal', {backdrop: true, focus:false, keyboard: false});
+        myModal.show();
+    }
+
+    function SopenDeleteModal(SpecialtyId){
+        const myModal = new bootstrap.Modal('#deleteSpecialtyModal', {backdrop: true, focus:false, keyboard: false});
+
+        deleteSpecialtyId.value = SpecialtyId;
+        myModal.show();
+    }
+
+    function SopenDetailsModal(SpecialtyId){
+        const myModal = new bootstrap.Modal('#SpecialtyDetailsModal', {backdrop: true, focus:false, keyboard: false});
+
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+
+            var specialty = JSON.parse(this.responseText);
+
+            editSpecialtyId.value = specialty.id;
+            editSpecialtyName.value = specialty.name;
+
+            myModal.show();
+        }
+        xhttp.open("GET", "http://localhost:8000/admin/specialty/"+SpecialtyId);
+        xhttp.send();
+    }
+
+    function addSpecialty() {
+
+        var bodyObj = {
+            "name": addSpecialtyName.value
+        }
+
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            loadSpecialities();
+            addSpecialtyName.value = "";
+        }
+        xhttp.open("POST", "http://localhost:8000/admin/specialty");
+        xhttp.setRequestHeader("Content-type", "application/json;charset=UTF-8");
+        xhttp.send(JSON.stringify(bodyObj));
+    }
+
+    function saveSpecialty() {
+        var bodyObj = {
+            "id": editSpecialtyId.value,
+            "name": editSpecialtyName.value
+        }
+
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            loadSpecialities();
+        }
+        xhttp.open("PUT", "http://localhost:8000/admin/specialty");
+        xhttp.setRequestHeader("Content-type", "application/json;charset=UTF-8");
+        xhttp.send(JSON.stringify(bodyObj));
+    }
+
+    function loadSpecialities() {
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            var specilities = JSON.parse(this.responseText);
+            var tableContent = "";
+            for(var i=0;i<specilities.length;i++){
+                tableContent+="<tr>";
+                tableContent+="<td>"+specilities[i].id+"</td>";
+                tableContent+="<td>"+specilities[i].name+"</td>";
+                tableContent+="<td><button class = 'btn btn-dark btn-sm' onclick = 'SopenDetailsModal("+specilities[i].id+")'>DETAILS</button></td>";
+                tableContent+="<td style = 'text-align:center;'><button class = 'btn btn-danger btn-sm' onclick = 'SopenDeleteModal("+specilities[i].id+")'>X</button></td>";
+                tableContent+="</tr>";
+            }
+            specialtyList.innerHTML = tableContent;
+        }
+        xhttp.open("GET", "http://localhost:8000/admin/specialty");
+        xhttp.send();
+    }
+
+
+    function deleteSpecialty() {
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            loadSpecialities();
+        }
+        xhttp.open("DELETE", "http://localhost:8000/admin/specialty/"+deleteSpecialtyId.value);
+        xhttp.send();
+    }
+    function companiesSelect(){
+        xhttp = new XMLHttpRequest();
+        var list = "";
+        xhttp.onload = function (){
+            var companies = JSON.parse(this.responseText)
+            for (let i = 0; i < companies.length; i++) {
+                list +="<option value='"+companies[i].id+"'>"
+                list +=companies[i].name
+                list +="</option>"
+            }
+            companiesList.innerHTML = list;
+        }
+        xhttp.open("GET", "http://localhost:8000/admin/company")
+        xhttp.send();
+    }
+    function specialtiesSelect(){
+        xhttp = new XMLHttpRequest();
+        var list = "";
+        xhttp.onload = function (){
+            var specialties = JSON.parse(this.responseText)
+            for (let i = 0; i < specialties.length; i++) {
+                list +="<option value='"+specialties[i].id+"' name='"+specialties[i].name+"'>"
+                list +=specialties[i].name
+                list +="</option>"
+            }
+            specialtiesList.innerHTML = list;
+        }
+        xhttp.open("GET", "http://localhost:8000/admin/specialty")
+        xhttp.send();
+    }
+    function addData() {
+        var bodyObj = {
+            "userName": addName.value,
+            "userSurname": addSurname.value,
+            "userDate": addDate.value,
+            "skill": addSkill.value,
+            "company": {
+                "id":companiesList.value
+            },
+            "specialty": {
+                "id":specialtiesList.value
+            }
+        }
+
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            loadCompanies();
+            addName.value = "";
+            addSurname.value = "";
+            addSkill.value = ""
+        }
+        xhttp.open("POST", "http://localhost:8000/questionnaire");
+        xhttp.setRequestHeader("Content-type", "application/json;charset=UTF-8");
+        xhttp.send(JSON.stringify(bodyObj));
+    }
+
+    function loadQuestionnaires() {
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            var questionnaires = JSON.parse(this.responseText);
+            var tableContent = "";
+            for(var i=0;i<questionnaires.length;i++){
+                tableContent+="<tr>";
+                tableContent+="<td>"+questionnaires[i].id+"</td>";
+                tableContent+="<td>"+questionnaires[i].userSurname + "  " + questionnaires[i].userName +"</td>";
+                tableContent+="<td>"+questionnaires[i].userDate+"</td>";
+                tableContent+="<td>"+questionnaires[i].skill+"</td>";
+                tableContent+="<td>"+questionnaires[i].company.name+"</td>";
+                tableContent+="<td>"+questionnaires[i].specialty.name+"</td>";
+                tableContent+="</tr>";
+            }
+            questionnaireList.innerHTML = tableContent;
+        }
+        xhttp.open("GET", "http://localhost:8000/questionnaire");
+        xhttp.send();
+    }
+    function loadQuestionnairesByCompany() {
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            var questionnaires = JSON.parse(this.responseText);
+            var tableContent = "";
+            for(var i=0;i<questionnaires.length;i++){
+                tableContent+="<tr>";
+                tableContent+="<td>"+questionnaires[i].id+"</td>";
+                tableContent+="<td>"+questionnaires[i].userSurname + "  " + questionnaires[i].userName +"</td>";
+                tableContent+="<td>"+questionnaires[i].userDate+"</td>";
+                tableContent+="<td>"+questionnaires[i].skill+"</td>";
+                tableContent+="<td>"+questionnaires[i].company.name+"</td>";
+                tableContent+="<td>"+questionnaires[i].specialty.name+"</td>";
+                tableContent+="</tr>";
+            }
+            questionnaireList.innerHTML = tableContent;
+        }
+        xhttp.open("GET", "http://localhost:8000/questionnaire/company/" + companiesList.value);
+        xhttp.send();
+    }
+    function loadQuestionnairesBySpecialty() {
+
+
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            var questionnaires = JSON.parse(this.responseText);
+            var tableContent = "";
+            for(var i=0;i<questionnaires.length;i++){
+                tableContent+="<tr>";
+                tableContent+="<td>"+questionnaires[i].id+"</td>";
+                tableContent+="<td>"+questionnaires[i].userSurname + "  " + questionnaires[i].userName +"</td>";
+                tableContent+="<td>"+questionnaires[i].userDate+"</td>";
+                tableContent+="<td>"+questionnaires[i].skill+"</td>";
+                tableContent+="<td>"+questionnaires[i].company.name+"</td>";
+                tableContent+="<td>"+questionnaires[i].specialty.name+"</td>";
+                tableContent+="</tr>";
+            }
+            questionnaireList.innerHTML = tableContent;
+        }
+        xhttp.open("GET", "http://localhost:8000/questionnaire/specialty/" + specialtiesList.value);
+        xhttp.send();
+    }
+
+    function loadQuestionnairesBySearch() {
+
+
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            var questionnaires = JSON.parse(this.responseText);
+            var tableContent = "";
+            for(var i=0;i<questionnaires.length;i++){
+                tableContent+="<tr>";
+                tableContent+="<td>"+questionnaires[i].id+"</td>";
+                tableContent+="<td>"+questionnaires[i].userSurname + "  " + questionnaires[i].userName +"</td>";
+                tableContent+="<td>"+questionnaires[i].userDate+"</td>";
+                tableContent+="<td>"+questionnaires[i].skill+"</td>";
+                tableContent+="<td>"+questionnaires[i].company.name+"</td>";
+                tableContent+="<td>"+questionnaires[i].specialty.name+"</td>";
+                tableContent+="</tr>";
+            }
+            questionnaireList.innerHTML = tableContent;
+        }
+        let bodyObj = {
+            "name":document.getElementById('search').value
+        }
+        xhttp.open("GET", "http://localhost:8000/questionnaire/search");
+        xhttp.setRequestHeader("Content-type", "application/json;charset=UTF-8");
+        xhttp.send(JSON.stringify(bodyObj));
+    }
+
+</script>
+</body>
+</html>

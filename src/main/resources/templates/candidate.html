@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/layout.html}">
+
+<div layout:fragment="mainContent">
+    <div class="row" my-2>
+        <div class="col-6 mx-auto mb-3">
+            <h1 style="font-family: 'Lucida Handwriting';color: #131212">Questionnaire</h1>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <label>YOUR NAME:</label>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <input type="text" class="form-control" id = "addName" name="name" required>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <label>YOUR SURNAME:</label>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <input type="text" class="form-control" id = "addSurname" name="surname" required>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <label>YOUR DATE:</label>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <input type="date" class="form-control" id = "addDate" name="date" required>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <label>SKILLS:</label>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <input type="text" class="form-control" id = "addSkill" name="skill" required>
+                    </div>
+                </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <label>COMPANY:</label>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-12">
+                    <select id="companiesList" class="form-select"></select>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <label>SPECIALTY:</label>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-12">
+                    <select id="specialtiesList" class="form-select"></select>
+                </div>
+            </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <form th:action="@{'/'}" method="get" id="goHomeForm"></form>
+                        <button class="btn-lg border-success bg-white" style="color: darkgreen"
+                                onclick="addData();goHomeForm.submit();" >SEND</button>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+</div>
+
+</html>

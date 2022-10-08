@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/layout.html}">
+<div layout:fragment="mainContent">
+    <div class="row">
+        <div class="col-6 mx-auto mt-2">
+            <h1 style="font-family: 'Lucida Handwriting';color: black">LOGIN</h1>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${param.error!=null}">
+                Incorrect email or password!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <form th:action="@{'/auth'}" method="post">
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <label>EMAIL:</label>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <input type="email" class="form-control" name="user_email" >
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <label>PASSWORD:</label>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <input type="password" class="form-control" name="user_password" >
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button class="btn btn-success">LOGIN</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</html>
